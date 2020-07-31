@@ -27,7 +27,7 @@ class ReadExcel:
             return None
 
 if __name__ == '__main__':
-    path = os.path.join(os.path.join(os.path.dirname(os.getcwd()), "data"), "apiTest.xlsx")
+    path = os.path.join(os.path.join(os.path.dirname(os.path.dirname(__file__)), "data"), "apiTest.xlsx")
     print(path)
     s = ReadExcel.readExcel(path, "Sheet1")
     print(s)

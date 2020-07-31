@@ -6,7 +6,8 @@ from common.SendRequests import SendRequests
 from common.ReadExcel import ReadExcel
 import os
 
-path = os.path.join(os.path.join(os.path.abspath(os.getcwd()), "data"), "apiTest.xlsx")
+path = os.path.join(os.path.join(os.path.dirname(os.path.dirname(__file__)), "data"), "apiTest.xlsx")
+print(path)
 testData = ReadExcel.readExcel(path, "Sheet1")
 
 
@@ -22,15 +23,21 @@ class Test1(unittest.TestCase):
     @data(*testData)
     def test_qq_api(self, data):
         re = SendRequests(data).sendRequests(self.s)
-        print(re.json(), 111)
+        print(re.json())
 
-        # 切割字符串取后面的部分
-        expect_result1 = data["expect_result"].split(":")[1]
-        # 转换为字符串
-        expect_result = eval(expect_result1)
+        for each_result in data["expect_result"].split(','):
+            # 切割字符串去掉空格
+            expect_result_key, expect_result_value = each_result.split(":")
+            expect_result_key = expect_result_key.strip()
+            expect_result_value = expect_result_value.strip()
+            # 处理数值类型的返回值
+            if 'int(' in expect_result_value:
+                expect_result_value = int(expect_result_value.split('int(')[-1].replace(')', ''))
+            # 转换为字符串
+            # expect_result = eval(expect_result1)
 
-        self.assertEqual(re.json()["reason"], expect_result, "返回错误,实际结果是%s" % re.json()["reason"])
-
+            self.assertEqual(re.json()[expect_result_key], expect_result_value,
+                             "返回错误,实际结果是%s" % re.json()[expect_result_key])
 
 if __name__ == '__main__':
     unittest.main()

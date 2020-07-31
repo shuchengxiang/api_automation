@@ -40,8 +40,7 @@ class SendRequests:
 
 if __name__ == '__main__':
     s = requests.session()
-    path = os.path.join(os.path.join(os.path.dirname(os.getcwd()), "data"), "apiTest.xlsx")
-    print(path)
+    path = os.path.join(os.path.join(os.path.dirname(os.path.dirname(__file__)), "data"), "apiTest.xlsx")
     testData = ReadExcel.readExcel(path, "Sheet1")
     response = SendRequests(testData[0]).sendRequests(s)
     print(response)
