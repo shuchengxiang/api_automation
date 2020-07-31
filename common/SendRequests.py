@@ -35,7 +35,8 @@ class SendRequests:
 
     def sendRequests(self, s):
         # 发送请求
-        re = s.request(method=self.method, url=self.url, headers=self.h, params=self.par, data=self.body, verify=self.v)
+        re = s.request(method=self.method, url=self.url, headers=self.h, params=self.par, data=self.body, verify=self.v,
+                       timeout=5)
         return re
 
 if __name__ == '__main__':

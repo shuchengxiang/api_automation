@@ -7,7 +7,6 @@ from common.ReadExcel import ReadExcel
 import os
 
 path = os.path.join(os.path.join(os.path.dirname(os.path.dirname(__file__)), "data"), "apiTest.xlsx")
-print(path)
 testData = ReadExcel.readExcel(path, "Sheet1")
 
 
@@ -21,7 +20,10 @@ class Test1(unittest.TestCase):
         pass
 
     @data(*testData)
-    def test_qq_api(self, data):
+    def test_api(self, data):
+        # 将报告展示修改为用例的名字
+        self._testMethodName = data['name']
+        # self._testMethodDoc = ''
         re = SendRequests(data).sendRequests(self.s)
         print(re.json())
 
