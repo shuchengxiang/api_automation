@@ -21,6 +21,7 @@ class SendRequests:
         }
         self.par = None
         self.v = None
+        self.body = None
         self.depending_case = None
         self.teardown_case = None
         self.timeout = 5
