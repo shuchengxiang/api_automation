@@ -20,10 +20,7 @@ class SendRequests:
                             'Chrome / 84.0.4147.105 Safari / 537.36'
         }
         self.par = None
-        self.body = None
         self.v = None
-        self.ytype = None
-        self.body_data = None
         self.depending_case = None
         self.teardown_case = None
         self.timeout = 5
@@ -42,21 +39,6 @@ class SendRequests:
         self.isrun = apiData['isrun']
         if apiData["headers"]:
             self.h = eval(apiData["headers"])
-
-        # if apiData["body"] == "":
-        #     self.body_data = None
-        # else:
-        #     self.body_data = eval(apiData["body"])
-        #
-        # self.ytype = apiData["ytype"]
-        # self.v = False
-        # self.body = None
-        # if self.ytype == "json":
-        #     self.body = json.dumps(self.body_data)
-        # if self.ytype == "data":
-        #     self.body = self.body_data
-        # else:
-        #     self.body = self.body_data
 
         # 对参数的处理
         if apiData["params"]:

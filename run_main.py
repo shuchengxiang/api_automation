@@ -21,5 +21,5 @@ if __name__ == '__main__':
     # runner = HTMLTestRunner(stream=fp, title=u"自动化测试报告", description=u'qq接口', verbosity=2)
     # runner.run(run_case())
     # fp.close()
-    BeautifulReport(run_case()).report(filename='测试报告'+current_time, description=u'qq接口',
+    BeautifulReport(run_case()).report(filename='测试报告'+current_time, description=u'东奥商城',
                                        log_path=log_path)
