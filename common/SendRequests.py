@@ -2,46 +2,181 @@ from ReadExcel import ReadExcel
 import requests
 import json
 import os
+from common.util import get_variable_param, get_dependent_param
+# from ReadExcel import Datalist
 
 
 class SendRequests:
-    def __init__(self, apiData):
-        # 从读取的表格中获取响应的参数作为传递
+    def __init__(self, Datalist):
+        self.session = None
+        self.isrun = None
+        self.method = None
+        self.url = None
+        self.h = {
+            'accept': 'application/json, text/javascript, */*; q=0.01',
+            'Accept - Encoding': 'gzip, deflate, br',
+            'Accept - Language': 'zh - CN, zh;q = 0.9',
+            'User - Agent': 'Mozilla / 5.0(Windows NT 6.1; WOW64) AppleWebKit / 537.36(KHTML, like Gecko) '
+                            'Chrome / 84.0.4147.105 Safari / 537.36'
+        }
+        self.par = None
+        self.body = None
+        self.v = None
+        self.ytype = None
+        self.body_data = None
+        self.depending_case = None
+        self.teardown_case = None
+        self.timeout = 5
+        self.Datalist = Datalist
+        self.depending_teardowncase = None
+        self.depending_res_list = None
+
+    def sendRequests(self, session, apiData):
+        """用于发送请求和逻辑处理的请求方法"""
+        # 从读取的字典中获取响应的参数作为传递
         self.method = apiData["method"]
         self.url = apiData["url"]
-        if apiData["params"] == "":
-            self.par = None
-        else:
-            self.par = eval(apiData["params"])
-
-        if apiData["headers"] == "":
-            self.h = None
-        else:
+        self.depending_case = apiData['depending_case']
+        self.teardown_case = apiData['teardown_case']
+        self.depending_teardowncase = apiData['depending_teardowncase']
+        self.isrun = apiData['isrun']
+        if apiData["headers"]:
             self.h = eval(apiData["headers"])
 
-        if apiData["body"] == "":
-            self.body_data = None
-        else:
-            self.body_data = eval(apiData["body"])
+        # if apiData["body"] == "":
+        #     self.body_data = None
+        # else:
+        #     self.body_data = eval(apiData["body"])
+        #
+        # self.ytype = apiData["ytype"]
+        # self.v = False
+        # self.body = None
+        # if self.ytype == "json":
+        #     self.body = json.dumps(self.body_data)
+        # if self.ytype == "data":
+        #     self.body = self.body_data
+        # else:
+        #     self.body = self.body_data
 
-        self.ytype = apiData["ytype"]
-        self.v = False
-        if self.ytype == "json":
-            self.body = json.dumps(self.body_data)
-        if self.ytype == "data":
-            self.body = self.body_data
-        else:
-            self.body = self.body_data
+        # 对参数的处理
+        if apiData["params"]:
+            str_after_consult = apiData["params"]
+            # 处理md5加密参数转换
+            if 'md5(' in str_after_consult:
+                str_after_consult = get_variable_param(str_after_consult, 'md5(')
 
-    def sendRequests(self, s):
+            if 'timestamp(' in str_after_consult:
+                str_after_consult = get_variable_param(str_after_consult, 'timestamp(')
+
+            if self.depending_case:
+                depending_case_list = self.depending_case.split(',')
+                if '${' in str_after_consult:
+                    # 这里需要创建新的实例来运行
+                    res = SendRequests(self.Datalist).send_depending_requests(session, depending_case_list)
+                    self.depending_res_list = res
+                    str_after_consult = get_dependent_param(str_after_consult, '${', res[-1])
+                else:
+                    SendRequests(self.Datalist).send_depending_requests(session, depending_case_list)
+            self.par = eval(str_after_consult)
+
         # 发送请求
-        re = s.request(method=self.method, url=self.url, headers=self.h, params=self.par, data=self.body, verify=self.v,
-                       timeout=5)
+        re = session.request(method=self.method, url=self.url, headers=self.h, params=self.par,
+                                      data=self.body, verify=self.v, timeout=self.timeout)
+        # 对case产生的数据进行清理
+        if self.teardown_case:
+            teardown_case = self.Datalist[int(self.teardown_case)-1]
+            SendRequests(self.Datalist).send_teardown_requests(session, teardown_case, re.content.decode('utf-8'))
+        # 对case的依赖case产生的数据进行清理
+        if self.depending_teardowncase:
+            depending_teardowncase_list = self.depending_teardowncase.split(',')
+            for i in range(len(depending_teardowncase_list)):
+                if depending_teardowncase_list[i] == 'n':
+                    continue
+                depending_teardowncase = self.Datalist[int(depending_teardowncase_list[i])-1]
+                depending_res = self.depending_res_list[i]
+                SendRequests(self.Datalist).send_teardown_requests(session, depending_teardowncase, depending_res)
         return re
+
+    def send_depending_requests(self, session, depending_case_list):
+        """用于获取依赖数据的请求方法"""
+        depending_case_res_list = []
+        depending_case_res = None
+        for each in depending_case_list:
+            apiData = self.Datalist[int(each)-1]
+            # 从读取的字典中获取响应的参数作为传递
+            self.method = apiData["method"]
+            self.url = apiData["url"]
+            if apiData["headers"]:
+                self.h = eval(apiData["headers"])
+
+            # 对参数的处理
+            if apiData["params"]:
+                str_after_consult = apiData["params"]
+                # 处理md5加密参数转换
+                if 'md5(' in str_after_consult:
+                    str_after_consult = get_variable_param(str_after_consult, 'md5(')
+
+                if 'timestamp(' in str_after_consult:
+                    str_after_consult = get_variable_param(str_after_consult, 'timestamp(')
+
+                # 依赖case表中第一个case直接执行，第一个case是没有依赖的case
+                if not depending_case_res:
+                    self.par = eval(str_after_consult)
+                    depending_case_res = session.request(method=self.method, url=self.url, headers=self.h,
+                                                         params=self.par,
+                                                         data=self.body, verify=self.v, timeout=self.timeout)
+                    res = depending_case_res.content.decode('utf-8')
+                    depending_case_res_list.append(res)
+                    continue
+                # 对依赖参数进行处理
+                if '${' in str_after_consult:
+                    str_after_consult = get_dependent_param(str_after_consult, '${', depending_case_res.content.decode('utf-8'))
+                    self.par = eval(str_after_consult)
+                    depending_case_res = session.request(method=self.method, url=self.url, headers=self.h,
+                                                         params=self.par,
+                                                         data=self.body, verify=self.v, timeout=self.timeout)
+                    res = depending_case_res.content.decode('utf-8')
+                    depending_case_res_list.append(res)
+                else:
+                    depending_case_res = session.request(method=self.method, url=self.url, headers=self.h,
+                                                         params=self.par,
+                                                         data=self.body, verify=self.v, timeout=self.timeout)
+                    res = depending_case_res.content.decode('utf-8')
+                    depending_case_res_list.append(res)
+
+        return depending_case_res_list
+
+    def send_teardown_requests(self, session, apiData, teardown_res):
+        """用于数据清理的请求方法"""
+        # 从读取的字典中获取响应的参数作为传递
+        self.method = apiData["method"]
+        self.url = apiData["url"]
+        if apiData["headers"]:
+            self.h = eval(apiData["headers"])
+
+        # 对参数的处理
+        if apiData["params"]:
+            str_after_consult = apiData["params"]
+            # 处理md5加密参数转换
+            if 'md5(' in str_after_consult:
+                str_after_consult = get_variable_param(str_after_consult, 'md5(')
+
+            if 'timestamp(' in str_after_consult:
+                str_after_consult = get_variable_param(str_after_consult, 'timestamp(')
+
+            # 处理teardowncase包含依赖参数的情况
+            if '${' in str_after_consult:
+                str_after_consult = get_dependent_param(str_after_consult, '${', teardown_res)
+            self.par = eval(str_after_consult)
+        # 发送请求
+        re = session.request(method=self.method, url=self.url, headers=self.h, params=self.par,
+                                  data=self.body, verify=self.v, timeout=self.timeout)
+        return re
+
 
 if __name__ == '__main__':
     s = requests.session()
     path = os.path.join(os.path.join(os.path.dirname(os.path.dirname(__file__)), "data"), "apiTest.xlsx")
-    testData = ReadExcel.readExcel(path, "Sheet1")
-    response = SendRequests(testData[0]).sendRequests(s)
+    testData = ReadExcel(path, "Sheet1").get_all_data()
+    response = SendRequests(testData).sendRequests(s, testData[0])
     print(response)

@@ -5,41 +5,65 @@ from ddt import ddt, data, unpack
 from common.SendRequests import SendRequests
 from common.ReadExcel import ReadExcel
 import os
+import sys
+from common.BeautifulReport.BeautifulReport import BeautifulReport
+from json.decoder import JSONDecodeError
 
 path = os.path.join(os.path.join(os.path.dirname(os.path.dirname(__file__)), "data"), "apiTest.xlsx")
-testData = ReadExcel.readExcel(path, "Sheet1")
+testData = ReadExcel(path, "Sheet1").get_all_data()
 
 
 @ddt
 class Test1(unittest.TestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        cls.s = requests.session()
+
+    @classmethod
+    def tearDownClass(cls):
+        pass
+
     def setUp(self):
-        self.s = requests.session()
+        pass
 
     def tearDown(self):
         pass
 
     @data(*testData)
     def test_api(self, data):
-        # 将报告展示修改为用例的名字
+        # 将报告展示修改为用例的名字, 单独在unnitest运行会报错需注释后运行
         self._testMethodName = data['name']
-        # self._testMethodDoc = ''
-        re = SendRequests(data).sendRequests(self.s)
-        print(re.json())
-
+        # 将报告展示修改为用例的描述, 单独在unnitest运行会报错需注释后运行
+        self._testMethodDoc = data['name']
+        if not data['isrun']:
+            self.skipTest('teardown case')
+        r = SendRequests(testData)
+        re = r.sendRequests(self.s, data)
+        try:
+            res = re.json()
+        except JSONDecodeError:
+            res = re.content.decode('utf-8')
+        print(res)
         for each_result in data["expect_result"].split(','):
-            # 切割字符串去掉空格
-            expect_result_key, expect_result_value = each_result.split(":")
-            expect_result_key = expect_result_key.strip()
-            expect_result_value = expect_result_value.strip()
-            # 处理数值类型的返回值
-            if 'int(' in expect_result_value:
-                expect_result_value = int(expect_result_value.split('int(')[-1].replace(')', ''))
-            # 转换为字符串
-            # expect_result = eval(expect_result1)
+            try:
+                # 切割字符串去掉空格
+                expect_result_key, expect_result_value = each_result.split(":")
+                expect_result_key = expect_result_key.strip()
+                expect_result_value = expect_result_value.strip()
+                # 处理数值类型的返回值
+                if 'int(' in expect_result_value:
+                    expect_result_value = int(expect_result_value.split('int(')[-1].replace(')', ''))
+                # 处理布尔类型的返回值
+                if 'bool(' in expect_result_value:
+                    expect_result_value = bool(expect_result_value.split('int(')[-1].replace(')', ''))
 
-            self.assertEqual(re.json()[expect_result_key], expect_result_value,
-                             "返回错误,实际结果是%s" % re.json()[expect_result_key])
+                # 转换为字符串
+                # expect_result = eval(expect_result1)
+
+                self.assertEqual(res[expect_result_key], expect_result_value, "返回错误,实际结果是%s" % res[expect_result_key])
+            except ValueError:
+                self.assertIn(each_result, str(res), "返回错误,实际结果是%s" % res)
 
 if __name__ == '__main__':
     unittest.main()
