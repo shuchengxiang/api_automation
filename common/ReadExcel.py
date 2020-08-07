@@ -2,8 +2,6 @@ import xlrd
 import os
 
 
-# Datalist = []
-
 class ReadExcel:
 
     def __init__(self, file_name=None, sheet_name=None):
@@ -31,16 +29,7 @@ class ReadExcel:
                 values = table.row_values(col)
                 # keys，values这两个列表一一对应来组合转换为字典
                 api_dict = dict(zip(keys, values))
-                # 处理依赖case,添加到data里
-                # if str(api_dict['depending_case']).strip() != '':
-                #     api_dict['depending_case'] = dict(zip(keys, self.get_row_values(int(api_dict['depending_case']))))
-                # if str(api_dict['teardown_case']).strip() != '':
-                #     api_dict['teardown_case'] = dict(zip(keys, self.get_row_values(int(api_dict['teardown_case']))))
-                # if str(api_dict['depending_case']).strip() or str(api_dict['teardown_case']).strip():
-                #     api_dict = self.iteral_dp_td_case(api_dict, keys)
                 listApiData.append(api_dict)
-            # global Datalist
-            # Datalist = listApiData
             return listApiData
         else:
             print("表格未填写数据")
@@ -51,20 +40,6 @@ class ReadExcel:
         data = xlrd.open_workbook(self.file_name)
         tables = data.sheet_by_name(self.sheet_name)
         return tables
-
-    # def iteral_dp_td_case(self, str1, keys):
-    #     if str1['depending_case']:
-    #         str1['depending_case'] = dict(zip(keys, self.get_row_values(int(str1['depending_case']))))
-    #         self.iteral_dp_td_case(str1['depending_case'], keys)
-    #     else:
-    #         str1['depending_case'] = ''
-    #     if str1['teardown_case']:
-    #         str1['teardown_case'] = dict(zip(keys, self.get_row_values(int(str1['teardown_case']))))
-    #         self.iteral_dp_td_case(str1['teardown_case'], keys)
-    #     else:
-    #         str1['teardown_case'] = ''
-    #     return str1
-
 
     # 获取单元格的行数
     def get_lines(self):

@@ -3,7 +3,6 @@ import requests
 import json
 import os
 from common.util import get_variable_param, get_dependent_param
-# from ReadExcel import Datalist
 
 
 class SendRequests:
@@ -59,7 +58,8 @@ class SendRequests:
                     self.depending_res_list = res
                     str_after_consult = get_dependent_param(str_after_consult, '${', res[-1])
                 else:
-                    SendRequests(self.Datalist).send_depending_requests(session, depending_case_list)
+                    res = SendRequests(self.Datalist).send_depending_requests(session, depending_case_list)
+                    self.depending_res_list = res
             self.par = eval(str_after_consult)
 
         # 发送请求

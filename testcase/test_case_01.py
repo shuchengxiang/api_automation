@@ -32,9 +32,9 @@ class Test1(unittest.TestCase):
 
     @data(*testData)
     def test_api(self, data):
-        # 将报告展示修改为用例的名字, 单独在unnitest运行会报错需注释后运行
+        # 将报告展示修改为用例的名字
         self._testMethodName = data['name']
-        # 将报告展示修改为用例的描述, 单独在unnitest运行会报错需注释后运行
+        # 将报告展示修改为用例的描述
         self._testMethodDoc = data['name']
         if not data['isrun']:
             self.skipTest('teardown case')
