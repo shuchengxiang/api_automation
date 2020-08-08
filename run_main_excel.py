@@ -8,7 +8,7 @@ from common.BeautifulReport.BeautifulReport import BeautifulReport
 def run_case(dir="testcase"):
     case_dir = os.path.join(os.path.abspath(os.getcwd()), dir)
     test_case = unittest.TestSuite()
-    discover = unittest.defaultTestLoader.discover(case_dir, pattern="test_case_01.py", top_level_dir=None)
+    discover = unittest.defaultTestLoader.discover(case_dir, pattern="test_case_excel_01.py", top_level_dir=None)
     return discover
 
 

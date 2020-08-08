@@ -82,7 +82,7 @@ class ReadExcel:
         return col_data
 
 if __name__ == '__main__':
-    path = os.path.join(os.path.join(os.path.dirname(os.path.dirname(__file__)), "data"), "apiTest.xlsx")
+    path = os.path.join(os.path.join(os.path.dirname(os.path.dirname(__file__)), "excel_data"), "apiTest.xlsx")
     print(path)
     s = ReadExcel(path, "Sheet1").get_all_data()
     print(s)

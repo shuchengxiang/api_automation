@@ -33,9 +33,9 @@ class Test1(unittest.TestCase):
     @data(*testData)
     def test_api(self, data):
         # 将报告展示修改为用例的名字
-        self._testMethodName = data['name']
+        self._testMethodName = data['case_name']
         # 将报告展示修改为用例的描述
-        self._testMethodDoc = data['name']
+        self._testMethodDoc = data['case_name']
         if not data['isrun']:
             self.skipTest('teardown case')
         r = SendRequests(testData)

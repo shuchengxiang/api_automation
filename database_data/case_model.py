@@ -1,4 +1,4 @@
-from flask import flash
+from flask import flash, Flask
 from gettext import gettext
 from flask_admin import Admin
 from flask_admin.actions import action
@@ -7,9 +7,9 @@ from flask_admin.menu import MenuLink
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
+# db = SQLAlchemy(app)
 
-
-class Slice(db.Model):
+class Case(db.Model):
     __tablename__ = 'apitest_case'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -26,12 +26,12 @@ class Slice(db.Model):
     expect_result = db.Column(db.String(1024), unique=False, nullable=False)
     msg = db.Column(db.String(1024), unique=False, nullable=True)
 
-    def import_slice(self):
+    def import_case(self):
         print("import")
         return True
 
 
-class SliceView(ModelView):
+class CaseView(ModelView):
     # 指定模板
     list_template = 'AdminLTE/list.html'
     create_template = 'AdminLTE/create.html'
@@ -41,7 +41,7 @@ class SliceView(ModelView):
     column_display_pk = True
     column_labels = {
         'id': 'ID',
-        'case_name': '名称'
+        'case_name': '用例名称'
     }
     column_searchable_list = ['case_name']
     column_filters = ['case_name']
@@ -54,7 +54,7 @@ class SliceView(ModelView):
     def action_import(self, ids):
         try:
             count = 0
-            query = Slice.query.filter(Slice.id.in_(ids))
+            query = Case.query.filter(Case.id.in_(ids))
             for s in query.all():
                 result = s.import_slice()
                 if not result:
@@ -68,7 +68,15 @@ class SliceView(ModelView):
             flash(gettext('Failed to import slices. %s' % str(ex)), 'error')
 
 admin = Admin(name='adminLTE', template_mode='bootstrap3', base_template='AdminLTE/mylayout.html', )  # 指定模板
-admin.add_view(SliceView(Slice, db.session, name='数源管理', menu_icon_type='fa', menu_icon_value='fa-table'))
+admin.add_view(CaseView(Case, db.session, name='数源管理', menu_icon_type='fa', menu_icon_value='fa-table'))
 admin.add_link(MenuLink(name='模型图谱', url='#', icon_type='fa', icon_value='fa-sitemap'))
 
-
+if __name__ == '__main__':
+    # 用于方便快捷的更新表设计
+    app = Flask(__name__)
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:123456@172.16.207.15:3306/apitest'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+    app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
+    db.app = app
+    db.init_app(app)
+    db.create_all()
