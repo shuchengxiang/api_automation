@@ -9,7 +9,7 @@ import sys
 from common.BeautifulReport.BeautifulReport import BeautifulReport
 from json.decoder import JSONDecodeError
 
-path = os.path.join(os.path.join(os.path.dirname(os.path.dirname(__file__)), "data"), "apiTest.xlsx")
+path = os.path.join(os.path.join(os.path.dirname(os.path.dirname(__file__)), "excel_data"), "apiTest.xlsx")
 testData = ReadExcel(path, "Sheet1").get_all_data()
 
 
