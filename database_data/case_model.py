@@ -56,7 +56,7 @@ class CaseView(ModelView):
             count = 0
             query = Case.query.filter(Case.id.in_(ids))
             for s in query.all():
-                result = s.import_slice()
+                result = s.import_case()
                 if not result:
                     raise Exception('Empty data')
                 else:
@@ -67,7 +67,7 @@ class CaseView(ModelView):
                 raise
             flash(gettext('Failed to import slices. %s' % str(ex)), 'error')
 
-admin = Admin(name='adminLTE', template_mode='bootstrap3', base_template='AdminLTE/mylayout.html', )  # 指定模板
+admin = Admin(url='/', name='adminLTE', template_mode='bootstrap3', base_template='AdminLTE/mylayout.html', )  # 指定模板
 admin.add_view(CaseView(Case, db.session, name='数源管理', menu_icon_type='fa', menu_icon_value='fa-table'))
 admin.add_link(MenuLink(name='模型图谱', url='#', icon_type='fa', icon_value='fa-sitemap'))
 
