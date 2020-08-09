@@ -3,13 +3,13 @@ import unittest
 import requests
 from ddt import ddt, data, unpack
 from common.SendRequests import SendRequests
-from common.ReadMysql import query_result, get_sql_data
+from common.ReadMysql import get_all_sql_data
 import os
 import sys
 from common.BeautifulReport.BeautifulReport import BeautifulReport
 from json.decoder import JSONDecodeError
 
-testData = get_sql_data(query_result)
+testData = get_all_sql_data()
 
 
 @ddt

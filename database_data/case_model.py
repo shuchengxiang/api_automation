@@ -9,6 +9,7 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 # db = SQLAlchemy(app)
 
+
 class Case(db.Model):
     __tablename__ = 'apitest_case'
 
@@ -66,6 +67,10 @@ class CaseView(ModelView):
             if not self.handle_view_exception(ex):
                 raise
             flash(gettext('Failed to import slices. %s' % str(ex)), 'error')
+
+    @action('run_all_case', '运行所有用例', '是否运行所有用例？')
+    def case_all_run(self):
+        pass
 
 admin = Admin(url='/', name='adminLTE', template_mode='bootstrap3', base_template='AdminLTE/mylayout.html', )  # 指定模板
 admin.add_view(CaseView(Case, db.session, name='数源管理', menu_icon_type='fa', menu_icon_value='fa-table'))

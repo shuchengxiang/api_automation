@@ -16,14 +16,14 @@ admin.init_app(app)
 Babel(app)
 
 
-@app.route('/run_all_sql_case',methods=['GET', 'POST'])
+@app.route('/run_all_sql_case', methods=['GET', 'POST'])
 def run_all_sql_case():
     run_main_sql()
     return '执行完毕'
 
 
-@app.route('/run_sql_case/<int:id>',methods=['GET', 'POST'])
-def run_all_sql_case(id):
+@app.route('/run_sql_case/<int:id>', methods=['GET', 'POST'])
+def run_sql_case(id):
     run_main_sql()
     return '执行完毕'
 
