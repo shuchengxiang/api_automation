@@ -45,3 +45,10 @@ def get_dependent_param(str1, tag, str_response):
         response_value = str_response[response_value_start_index: str_response.index(',', response_value_start_index)]
         str1 = str1.replace(f'{tag}{value}'+'}', response_value)
     return str1
+
+
+def get_case_by_id(datalist, id):
+    for data in datalist:
+        if int(data['id']) == int(id):
+            return data
+    return '没有找到该case'

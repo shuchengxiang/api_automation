@@ -2,7 +2,7 @@ from ReadExcel import ReadExcel
 import requests
 import json
 import os
-from common.util import get_variable_param, get_dependent_param
+from common.util import get_variable_param, get_dependent_param, get_case_by_id
 
 
 class SendRequests:
@@ -48,7 +48,7 @@ class SendRequests:
                                       data=self.body, verify=self.v, timeout=self.timeout)
         # 对case产生的数据进行清理
         if self.teardown_case:
-            teardown_case = self.Datalist[int(self.teardown_case)-1]
+            teardown_case = get_case_by_id(self.Datalist, self.teardown_case)
             SendRequests(self.Datalist).send_teardown_requests(session, teardown_case, re.content.decode('utf-8'))
         # 对case的依赖case产生的数据进行清理
         if self.depending_teardowncase:
@@ -56,7 +56,7 @@ class SendRequests:
             for i in range(len(depending_teardowncase_list)):
                 if depending_teardowncase_list[i] == 'n':
                     continue
-                depending_teardowncase = self.Datalist[int(depending_teardowncase_list[i])-1]
+                depending_teardowncase = get_case_by_id(self.Datalist, depending_teardowncase_list[i])
                 depending_res = self.depending_res_list[i]
                 SendRequests(self.Datalist).send_teardown_requests(session, depending_teardowncase, depending_res)
         return re
@@ -66,7 +66,7 @@ class SendRequests:
         depending_case_res_list = []
         depending_case_res = None
         for each in depending_case_list:
-            apiData = self.Datalist[int(each)-1]
+            apiData = get_case_by_id(self.Datalist, each)
             # 从读取的字典中获取响应的参数作为传递,包括对关键字参数的处理
             str_after_consult = self.get_all_params(apiData)
             # 对依赖参数进行处理
