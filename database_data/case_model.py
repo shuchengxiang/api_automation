@@ -1,10 +1,14 @@
-from flask import flash, Flask
+from flask import flash, Flask, send_file, url_for, redirect, request
 from gettext import gettext
-from flask_admin import Admin
+from flask_admin import Admin, expose, expose_plugview
 from flask_admin.actions import action
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.menu import MenuLink
 from flask_sqlalchemy import SQLAlchemy
+from common.RunTestCase import run_test_case
+import os
+import time
+from common.BeautifulReport.BeautifulReport import BeautifulReport
 
 db = SQLAlchemy()
 # db = SQLAlchemy(app)
@@ -70,12 +74,65 @@ class CaseView(ModelView):
 
     @action('case_run', '运行用例', '是否运行用例?')
     def case_run(self, ids):
-        print(ids)
-        pass
+        testData = get_sql_data(ids)
+        allData = get_all_sql_data()
+        current_time = time.strftime("%Y-%m-%d-%H_%M_%S", time.localtime(time.time()))
+        log_path = os.path.join(os.path.abspath(os.getcwd()), "report")
+        BeautifulReport(run_test_case(testData, allData)).report(filename='测试报告' + current_time, description=u'东奥商城',
+                                                        log_path=log_path)
+        report_filename = os.path.join(log_path, '测试报告' + current_time + '.html')
+        return redirect(url_for('.report', path=report_filename))
+
+    @expose('/run_all_case', methods=['POST', 'GET'])
+    def run_all_case(self):
+        testData = get_all_sql_data()
+        allData = testData
+        current_time = time.strftime("%Y-%m-%d-%H_%M_%S", time.localtime(time.time()))
+        log_path = os.path.join(os.path.abspath(os.getcwd()), "report")
+        BeautifulReport(run_test_case(testData, allData)).report(filename='测试报告' + current_time, description=u'东奥商城',
+                                                                 log_path=log_path)
+        report_filename = os.path.join(log_path, '测试报告' + current_time + '.html')
+        return redirect(url_for('.report', path=report_filename))
+
+    @expose('/report', methods=['POST', 'GET'])
+    def report(self):
+        path = request.args.get('path')
+        return send_file(path)
+
+
+
+
+
 
 admin = Admin(url='/', name='adminLTE', template_mode='bootstrap3', base_template='AdminLTE/mylayout.html', )  # 指定模板
 admin.add_view(CaseView(Case, db.session, name='数源管理', menu_icon_type='fa', menu_icon_value='fa-table'))
 admin.add_link(MenuLink(name='模型图谱', url='#', icon_type='fa', icon_value='fa-sitemap'))
+
+
+def get_all_sql_data():
+    query_result = Case.query.all()
+    apiData = []
+    for each in query_result:
+        dict_result = {}
+        for c in each.__table__.columns:
+            dict_result[c.name] = str(getattr(each, c.name))
+        apiData.append(dict_result)
+    return apiData
+
+
+def get_sql_data(id_list):
+    query_result = []
+    for each_id in id_list:
+        query = Case.query.filter_by(id=each_id).all()
+        query_result.extend(query)
+    apiData = []
+    for each in query_result:
+        dict_result = {}
+        for c in each.__table__.columns:
+            dict_result[c.name] = str(getattr(each, c.name))
+        apiData.append(dict_result)
+    return apiData
+
 
 if __name__ == '__main__':
     # 用于方便快捷的更新表设计

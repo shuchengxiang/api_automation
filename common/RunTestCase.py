@@ -2,13 +2,12 @@ import unittest
 import requests
 from ddt import ddt, data, unpack
 from common.SendRequests import SendRequests
-from common.ReadExcel import ReadExcel
 import os
 from json.decoder import JSONDecodeError
 from util import assert_method
 
 
-def run_test_case(testData):
+def run_test_case(testData, allData):
     @ddt
     class TestCaseSet(unittest.TestCase):
 
@@ -34,7 +33,7 @@ def run_test_case(testData):
             self._testMethodDoc = data['case_name']
             if not data['isrun']:
                 self.skipTest('teardown case')
-            r = SendRequests(testData)
+            r = SendRequests(allData)
             re = r.send_requests(self.s, data)
             try:
                 res = re.json()

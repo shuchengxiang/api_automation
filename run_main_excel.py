@@ -11,5 +11,5 @@ if __name__ == '__main__':
     current_time = time.strftime("%Y-%m-%d-%H_%M_%S", time.localtime(time.time()))
     # 生成测试报告的路径
     log_path = os.path.join(os.path.dirname(__file__), "report")
-    BeautifulReport(run_test_case(testData)).report(filename='测试报告' + current_time, description=u'东奥商城',
+    BeautifulReport(run_test_case(testData, testData)).report(filename='测试报告' + current_time, description=u'东奥商城',
                                        log_path=log_path)

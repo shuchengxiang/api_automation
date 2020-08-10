@@ -3,13 +3,18 @@ import os
 from common.RunTestCase import run_test_case
 from common.BeautifulReport.BeautifulReport import BeautifulReport
 import time
-from common.ReadMysql import get_all_sql_data
+from database_data.case_model import get_all_sql_data, get_sql_data
+from app import app
+import unittest
 
-testData = get_all_sql_data()
+
+allData = get_all_sql_data()
+testData = get_sql_data([3])
 
 if __name__ == '__main__':
     current_time = time.strftime("%Y-%m-%d-%H_%M_%S", time.localtime(time.time()))
     # 生成测试报告的路径
     log_path = os.path.join(os.path.dirname(__file__), "report")
-    BeautifulReport(run_test_case(testData)).report(filename='测试报告' + current_time, description=u'东奥商城',
-                                       log_path=log_path)
+    # BeautifulReport(run_test_case(testData, allData)).report(filename='测试报告' + current_time, description=u'东奥商城',
+    #                                    log_path=log_path)
+    unittest.TextTestRunner().run(run_test_case(testData, allData))

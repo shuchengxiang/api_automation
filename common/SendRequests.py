@@ -118,8 +118,6 @@ class SendRequests:
         return str_after_consult
 
 
-
-
 if __name__ == '__main__':
     s = requests.session()
     path = os.path.join(os.path.join(os.path.dirname(os.path.dirname(__file__)), "data"), "apiTest.xlsx")

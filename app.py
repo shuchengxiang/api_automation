@@ -19,9 +19,5 @@ def run_all_sql_case():
     return '执行完毕'
 
 
-@app.route('/run_sql_case/<int:id>', methods=['GET', 'POST'])
-def run_sql_case(id):
-    return '执行完毕'
-
 if __name__ == '__main__':
     app.run(debug=True, port=8000)
