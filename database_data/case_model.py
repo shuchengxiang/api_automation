@@ -51,25 +51,26 @@ class CaseView(ModelView):
     export_types = ['csv', 'xls', 'json', 'html']
     can_set_page_size = True
 
-    @action('import', '导入', '是否导入数据？')
-    def action_import(self, ids):
-        try:
-            count = 0
-            query = Case.query.filter(Case.id.in_(ids))
-            for s in query.all():
-                result = s.import_case()
-                if not result:
-                    raise Exception('Empty data')
-                else:
-                    count += 1
-            flash('数据源成功导入！')
-        except Exception as ex:
-            if not self.handle_view_exception(ex):
-                raise
-            flash(gettext('Failed to import slices. %s' % str(ex)), 'error')
+    # @action('import', '导入', '是否导入数据？')
+    # def action_import(self, ids):
+    #     try:
+    #         count = 0
+    #         query = Case.query.filter(Case.id.in_(ids))
+    #         for s in query.all():
+    #             result = s.import_case()
+    #             if not result:
+    #                 raise Exception('Empty data')
+    #             else:
+    #                 count += 1
+    #         flash('数据源成功导入！')
+    #     except Exception as ex:
+    #         if not self.handle_view_exception(ex):
+    #             raise
+    #         flash(gettext('Failed to import slices. %s' % str(ex)), 'error')
 
-    @action('run_all_case', '运行所有用例', '是否运行所有用例？')
-    def case_all_run(self):
+    @action('case_run', '运行用例', '是否运行用例?')
+    def case_run(self, ids):
+        print(ids)
         pass
 
 admin = Admin(url='/', name='adminLTE', template_mode='bootstrap3', base_template='AdminLTE/mylayout.html', )  # 指定模板

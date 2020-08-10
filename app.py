@@ -1,8 +1,6 @@
 from flask import Flask
 from flask_babelex import Babel
 from database_data.case_model import db, admin
-from run_main_sql import run_main_sql
-from run_main_excel import run_main_excel
 
 
 app = Flask(__name__)
@@ -18,13 +16,11 @@ Babel(app)
 
 @app.route('/run_all_sql_case', methods=['GET', 'POST'])
 def run_all_sql_case():
-    run_main_sql()
     return '执行完毕'
 
 
 @app.route('/run_sql_case/<int:id>', methods=['GET', 'POST'])
 def run_sql_case(id):
-    run_main_sql()
     return '执行完毕'
 
 if __name__ == '__main__':

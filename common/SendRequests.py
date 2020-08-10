@@ -28,7 +28,7 @@ class SendRequests:
         self.depending_teardowncase = None
         self.depending_res_list = None
 
-    def sendRequests(self, session, apiData):
+    def send_requests(self, session, apiData):
         """用于发送请求和逻辑处理的请求方法"""
         # 从读取的字典中获取响应的参数作为传递,包括对关键字参数的处理
         str_after_consult = self.get_all_params(apiData)
@@ -124,5 +124,5 @@ if __name__ == '__main__':
     s = requests.session()
     path = os.path.join(os.path.join(os.path.dirname(os.path.dirname(__file__)), "data"), "apiTest.xlsx")
     testData = ReadExcel(path, "Sheet1").get_all_data()
-    response = SendRequests(testData).sendRequests(s, testData[0])
+    response = SendRequests(testData).send_requests(s, testData[0])
     print(response)

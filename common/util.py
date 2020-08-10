@@ -1,5 +1,6 @@
 import hashlib
 import time
+import unittest
 
 
 def indexstr(str1, str2):
@@ -52,3 +53,23 @@ def get_case_by_id(datalist, id):
         if int(data['id']) == int(id):
             return data
     return '没有找到该case'
+
+
+def assert_method(str1, res):
+    try:
+        # 切割字符串去掉空格
+        expect_result_key, expect_result_value = str1.split(":")
+        expect_result_key = expect_result_key.strip()
+        expect_result_value = expect_result_value.strip()
+        # 处理数值类型的返回值
+        if 'int(' in expect_result_value:
+            expect_result_value = int(expect_result_value.split('int(')[-1].replace(')', ''))
+        # 处理布尔类型的返回值
+        if 'bool(' in expect_result_value:
+            expect_result_value = bool(expect_result_value.split('int(')[-1].replace(')', ''))
+
+        # 转换为字符串
+        # expect_result = eval(expect_result1)
+        unittest.TestCase().assertEqual(res[expect_result_key], expect_result_value, "返回错误,实际结果是%s" % res[expect_result_key])
+    except ValueError:
+        unittest.TestCase().assertIn(str1, str(res), "返回错误,实际结果是%s" % res)
