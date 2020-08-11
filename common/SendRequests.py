@@ -102,8 +102,15 @@ class SendRequests:
         self.depending_case = apiData['depending_case']
         self.teardown_case = apiData['teardown_case']
         self.depending_teardowncase = apiData['depending_teardowncase']
+        # 前台上传的数据会转换为字符串，进行处理
+        if apiData['depending_case'] == 'None':
+            self.depending_case = None
+        if apiData['teardown_case'] == 'None':
+            self.teardown_case = None
+        if apiData['depending_teardowncase'] == 'None':
+            self.depending_teardowncase = None
         self.isrun = apiData['isrun']
-        if apiData["headers"]:
+        if apiData["headers"] and apiData["headers"] != 'None':
             self.h = eval(apiData["headers"])
         str_after_consult = ''
         # 对参数的处理

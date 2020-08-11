@@ -194,6 +194,8 @@ class ReportTestResult(unittest.TestResult):
         :param title:
         :return:
         """
+        # 修改源码处理testResult的case累加的问题
+        FIELDS["testResult"] = []
         FIELDS['testPass'] = self.success_counter
         for item in self.result_list:
             item = json.loads(str(MakeResultJson(item)))
@@ -208,6 +210,7 @@ class ReportTestResult(unittest.TestResult):
         FIELDS['testError'] = self.error_count
         FIELDS['testSkip'] = self.skipped
         self.FIELDS = FIELDS
+
         return FIELDS
     
     def get_all_result_info_tuple(self, test) -> tuple:

@@ -41,8 +41,13 @@ def get_dependent_param(str1, tag, str_response):
             pass
         else:
             value_in_response = '\'' + value + '\''
-        # 在依赖参数的返回中取值
-        response_value_start_index = str_response.index(value_in_response) + len(value) + 3
+        try:
+            # 在依赖参数的返回中取值
+            response_value_start_index = str_response.index(value_in_response) + len(value) + 3
+        except ValueError as e:
+            print('依赖接口返回', str_response)
+            print('需要的参数为', value_in_response)
+            raise ValueError(e)
         response_value = str_response[response_value_start_index: str_response.index(',', response_value_start_index)]
         str1 = str1.replace(f'{tag}{value}'+'}', response_value)
     return str1

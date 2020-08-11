@@ -31,7 +31,7 @@ def run_test_case(testData, allData):
             self._testMethodName = data['case_name']
             # 将报告展示修改为用例的描述
             self._testMethodDoc = data['case_name']
-            if not data['isrun']:
+            if data['isrun'] == '否':
                 self.skipTest('teardown case')
             r = SendRequests(allData)
             re = r.send_requests(self.s, data)

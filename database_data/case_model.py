@@ -9,6 +9,7 @@ from common.RunTestCase import run_test_case
 import os
 import time
 from common.BeautifulReport.BeautifulReport import BeautifulReport
+from flask_admin.model.template import EndpointLinkRowAction
 
 db = SQLAlchemy()
 # db = SQLAlchemy(app)
@@ -22,7 +23,7 @@ class Case(db.Model):
     method = db.Column(db.String(1024), unique=False, nullable=False)
     url = db.Column(db.String(1024), unique=False, nullable=False)
     depending_case = db.Column(db.String(1024), unique=False, nullable=True)
-    isrun = db.Column(db.String(1024), unique=False, nullable=True)
+    isrun = db.Column(db.String(1024), unique=False, nullable=False, default='是')
     params = db.Column(db.String(4096), unique=False, nullable=False)
     headers = db.Column(db.String(4096), unique=False, nullable=True)
     depending_teardowncase = db.Column(db.String(1024), unique=False, nullable=True)
@@ -46,14 +47,23 @@ class CaseView(ModelView):
     column_display_pk = True
     column_labels = {
         'id': 'ID',
-        'case_name': '用例名称'
+        'case_name': '用例名称',
+        'isrun': '是否运行'
     }
-    column_searchable_list = ['case_name']
-    column_filters = ['case_name']
+    column_searchable_list = ['case_name', 'isrun']
+    column_filters = ['case_name', 'isrun']
     can_view_details = True
     can_export = True
     export_types = ['csv', 'xls', 'json', 'html']
     can_set_page_size = True
+    show_run_all_button = True
+
+    form_choices = {
+        'isrun': [
+            ('是', '是'),
+            ('否', '否'),
+        ]
+    }
 
     # @action('import', '导入', '是否导入数据？')
     # def action_import(self, ids):
@@ -77,7 +87,7 @@ class CaseView(ModelView):
         testData = get_sql_data(ids)
         allData = get_all_sql_data()
         current_time = time.strftime("%Y-%m-%d-%H_%M_%S", time.localtime(time.time()))
-        log_path = os.path.join(os.path.abspath(os.getcwd()), "report")
+        log_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "report")
         BeautifulReport(run_test_case(testData, allData)).report(filename='测试报告' + current_time, description=u'东奥商城',
                                                         log_path=log_path)
         report_filename = os.path.join(log_path, '测试报告' + current_time + '.html')
@@ -88,7 +98,7 @@ class CaseView(ModelView):
         testData = get_all_sql_data()
         allData = testData
         current_time = time.strftime("%Y-%m-%d-%H_%M_%S", time.localtime(time.time()))
-        log_path = os.path.join(os.path.abspath(os.getcwd()), "report")
+        log_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "report")
         BeautifulReport(run_test_case(testData, allData)).report(filename='测试报告' + current_time, description=u'东奥商城',
                                                                  log_path=log_path)
         report_filename = os.path.join(log_path, '测试报告' + current_time + '.html')
@@ -97,16 +107,17 @@ class CaseView(ModelView):
     @expose('/report', methods=['POST', 'GET'])
     def report(self):
         path = request.args.get('path')
+        filelist = sorted(os.listdir(os.path.dirname(path)))
+        # 报告数超过三个则从头删除
+        if len(filelist) >= 10:
+            os.chdir(os.path.dirname(path))
+            os.remove(filelist[0])
         return send_file(path)
 
 
-
-
-
-
-admin = Admin(url='/', name='adminLTE', template_mode='bootstrap3', base_template='AdminLTE/mylayout.html', )  # 指定模板
-admin.add_view(CaseView(Case, db.session, name='数源管理', menu_icon_type='fa', menu_icon_value='fa-table'))
-admin.add_link(MenuLink(name='模型图谱', url='#', icon_type='fa', icon_value='fa-sitemap'))
+admin = Admin(url='/', name='自动化平台', template_mode='bootstrap3', base_template='AdminLTE/mylayout.html', )  # 指定模板
+admin.add_view(CaseView(Case, db.session, name='用例管理', menu_icon_type='fa', menu_icon_value='fa-table'))
+# admin.add_link(MenuLink(name='模型图谱', url='#', icon_type='fa', icon_value='fa-sitemap'))
 
 
 def get_all_sql_data():
