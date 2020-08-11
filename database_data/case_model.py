@@ -48,7 +48,9 @@ class CaseView(ModelView):
     column_labels = {
         'id': 'ID',
         'case_name': '用例名称',
-        'isrun': '是否运行'
+        'isrun': '是否运行',
+        'depending_case': '依赖用例',
+        'depending_teardowncase': '依赖用例清理'
     }
     column_searchable_list = ['case_name', 'isrun']
     column_filters = ['case_name', 'isrun']
