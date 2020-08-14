@@ -9,7 +9,7 @@ import unittest
 
 
 allData = get_all_sql_data()
-testData = get_sql_data([3])
+testData = get_sql_data([17])
 
 if __name__ == '__main__':
     current_time = time.strftime("%Y-%m-%d-%H_%M_%S", time.localtime(time.time()))
