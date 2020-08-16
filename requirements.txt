@@ -8,6 +8,7 @@ Flask-Admin==1.4.1
 Flask-BabelEx==0.9.3
 Flask-SQLAlchemy==2.3.2
 freeze==3.0
+futures==3.1.1
 idna==2.10
 itsdangerous==1.1.0
 Jinja2==2.11.2
@@ -18,6 +19,7 @@ requests==2.24.0
 six==1.15.0
 speaklater==1.3
 SQLAlchemy==1.3.18
+tomorrow==0.2.4
 urllib3==1.25.10
 Werkzeug==0.14.1
 WTForms==2.3.3
