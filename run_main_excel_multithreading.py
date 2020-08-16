@@ -28,7 +28,8 @@ if __name__ == '__main__':
         "testError": 0,
         "testSkip": 0
     }
-    @threads(5)
+
+    @threads(10)
     def run_case_b(test_set):
         BeautifulReport(test_set).report(filename='测试报告' + current_time, description=u'东奥商城',
                                            log_path=log_path, multithread=True)
