@@ -7,22 +7,10 @@ from util import assert_method
 
 
 def run_test_case(testData, allData):
+    session = requests.session()
+
     @ddt
     class TestCaseSet(unittest.TestCase):
-
-        @classmethod
-        def setUpClass(cls):
-            cls.s = requests.session()
-
-        @classmethod
-        def tearDownClass(cls):
-            pass
-
-        def setUp(self):
-            pass
-
-        def tearDown(self):
-            pass
 
         @data(*testData)
         def test_api(self, data):
@@ -33,7 +21,7 @@ def run_test_case(testData, allData):
             if data['isrun'] == '否':
                 self.skipTest('teardown case')
             r = SendRequests(allData)
-            re = r.send_requests(self.s, data)
+            re = r.send_requests(session, data)
             try:
                 res = re.json()
             except JSONDecodeError:

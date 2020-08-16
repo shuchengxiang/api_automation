@@ -63,6 +63,19 @@ FIELDS = {
     "testSkip": 0
 }
 
+FIELDS_T = {
+    "testPass": 0,
+    "testResult": [
+    ],
+    "testName": "",
+    "testAll": 0,
+    "testFail": 0,
+    "beginTime": "",
+    "totalTime": "",
+    "testError": 0,
+    "testSkip": 0
+}
+
 
 class PATH:
     """ all file PATH meta """
@@ -212,6 +225,30 @@ class ReportTestResult(unittest.TestResult):
         self.FIELDS = FIELDS
 
         return FIELDS
+
+    # 自定义获取报告数据的方法
+    def stopTestRun_custom(self, title=None) -> dict:
+        """
+            所有测试执行完成后, 执行该方法
+        :param title:
+        :return:
+        """
+        FIELDS_T['testPass'] += self.success_counter
+        for item in self.result_list:
+            item = json.loads(str(MakeResultJson(item)))
+            FIELDS_T.get('testResult').append(item)
+        FIELDS_T['testAll'] += len(self.result_list)
+        FIELDS_T['testName'] = title if title else self.default_report_name
+        FIELDS_T['testFail'] += self.failure_count
+        FIELDS_T['beginTime'] = self.begin_time
+        end_time = int(time.time())
+        start_time = int(time.mktime(time.strptime(self.begin_time, '%Y-%m-%d %H:%M:%S')))
+        FIELDS_T['totalTime'] = str(end_time - start_time) + 's'
+        FIELDS_T['testError'] += self.error_count
+        FIELDS_T['testSkip'] += self.skipped
+        self.FIELDS = FIELDS_T
+
+        return FIELDS_T
     
     def get_all_result_info_tuple(self, test) -> tuple:
         """
@@ -347,12 +384,13 @@ class BeautifulReport(ReportTestResult, PATH):
         self.title = '自动化测试报告'
         self.filename = 'report.html'
 
-    def report(self, description, filename: str = None, log_path='.'):
+    def report(self, description, filename: str = None, log_path='.', multithread=False):
         """
             生成测试报告,并放在当前运行路径下
         :param log_path: 生成report的文件存储路径
         :param filename: 生成文件的filename
         :param description: 生成文件的注释
+        :param multithread: 用多线程模式运行
         :return:
         """
         if filename:
@@ -363,7 +401,11 @@ class BeautifulReport(ReportTestResult, PATH):
         
         self.log_path = os.path.abspath(log_path)
         self.suites.run(result=self)
-        self.stopTestRun(self.title)
+        # 为配置多线程设置的变量
+        if multithread:
+            self.stopTestRun_custom(self.title)
+        else:
+            self.stopTestRun(self.title)
         self.output_report()
         text = '\n测试已全部完成, 可前往{}查询测试报告'.format(self.log_path)
         print(text)
