@@ -59,7 +59,9 @@ def get_case_by_id(datalist, id):
             return data
     return '没有找到该case'
 
+
 def get_final_case_data(testData, allData):
+    """处理优先执行的case，将它们放在data列表的最前面"""
     run_first_list = []
     for each in allData:
         if each['run_first'] == '是':
