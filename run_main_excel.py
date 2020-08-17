@@ -3,9 +3,13 @@ import os
 from common.RunTestCase import run_test_case
 from common.BeautifulReport.BeautifulReport import BeautifulReport
 import time
+from common.util import get_final_case_data
+
 
 path = os.path.join(os.path.join(os.path.dirname(__file__), "excel_data"), "apiTest.xlsx")
 testData = ReadExcel(path, "Sheet1").get_all_data()
+allData = testData
+testData = get_final_case_data(testData, allData)
 
 if __name__ == '__main__':
     current_time = time.strftime("%Y-%m-%d-%H_%M_%S", time.localtime(time.time()))

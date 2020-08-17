@@ -9,7 +9,7 @@ from common.RunTestCase import run_test_case
 import os
 import time
 from common.BeautifulReport.BeautifulReport import BeautifulReport
-from flask_admin.model.template import EndpointLinkRowAction
+from common.util import get_final_case_data
 
 db = SQLAlchemy()
 # db = SQLAlchemy(app)
@@ -22,6 +22,7 @@ class Case(db.Model):
     case_name = db.Column(db.String(1024), unique=False, nullable=False)
     method = db.Column(db.String(1024), unique=False, nullable=False)
     url = db.Column(db.String(1024), unique=False, nullable=False)
+    run_first = db.Column(db.String(1024), unique=False, nullable=False, default='否')
     depending_case = db.Column(db.String(1024), unique=False, nullable=True)
     isrun = db.Column(db.String(1024), unique=False, nullable=False, default='是')
     params = db.Column(db.String(4096), unique=False, nullable=False)
@@ -50,7 +51,8 @@ class CaseView(ModelView):
         'case_name': '用例名称',
         'isrun': '是否运行',
         'depending_case': '依赖用例',
-        'depending_teardowncase': '依赖用例清理'
+        'depending_teardowncase': '依赖用例清理',
+        'run_first': '优先执行'
     }
     column_searchable_list = ['case_name', 'isrun']
     column_filters = ['case_name', 'isrun']
@@ -62,6 +64,10 @@ class CaseView(ModelView):
 
     form_choices = {
         'isrun': [
+            ('是', '是'),
+            ('否', '否'),
+        ],
+        'run_first': [
             ('是', '是'),
             ('否', '否'),
         ]
@@ -88,22 +94,16 @@ class CaseView(ModelView):
     def case_run(self, ids):
         testData = get_sql_data(ids)
         allData = get_all_sql_data()
-        current_time = time.strftime("%Y-%m-%d-%H_%M_%S", time.localtime(time.time()))
-        log_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "report")
-        BeautifulReport(run_test_case(testData, allData)).report(filename='测试报告' + current_time, description=u'东奥商城',
-                                                        log_path=log_path)
-        report_filename = os.path.join(log_path, '测试报告' + current_time + '.html')
+        testData = get_final_case_data(testData, allData)
+        report_filename = get_report(testData, allData)
         return redirect(url_for('.report', path=report_filename))
 
     @expose('/run_all_case', methods=['POST', 'GET'])
     def run_all_case(self):
         testData = get_all_sql_data()
         allData = testData
-        current_time = time.strftime("%Y-%m-%d-%H_%M_%S", time.localtime(time.time()))
-        log_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "report")
-        BeautifulReport(run_test_case(testData, allData)).report(filename='测试报告' + current_time, description=u'东奥商城',
-                                                                 log_path=log_path)
-        report_filename = os.path.join(log_path, '测试报告' + current_time + '.html')
+        testData = get_final_case_data(testData, allData)
+        report_filename = get_report(testData, allData)
         return redirect(url_for('.report', path=report_filename))
 
     @expose('/report', methods=['POST', 'GET'])
@@ -145,6 +145,15 @@ def get_sql_data(id_list):
             dict_result[c.name] = str(getattr(each, c.name))
         apiData.append(dict_result)
     return apiData
+
+
+def get_report(testData, allData):
+    current_time = time.strftime("%Y-%m-%d-%H_%M_%S", time.localtime(time.time()))
+    log_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "report")
+    BeautifulReport(run_test_case(testData, allData)).report(filename='测试报告' + current_time, description=u'东奥商城',
+                                                             log_path=log_path)
+    report_filename = os.path.join(log_path, '测试报告' + current_time + '.html')
+    return report_filename
 
 
 if __name__ == '__main__':

@@ -59,6 +59,17 @@ def get_case_by_id(datalist, id):
             return data
     return '没有找到该case'
 
+def get_final_case_data(testData, allData):
+    run_first_list = []
+    for each in allData:
+        if each['run_first'] == '是':
+            run_first_list.append(each)
+            if each in testData:
+                testData.remove(each)
+    run_first_list.extend(testData)
+    final_testData = run_first_list
+    return final_testData
+
 
 def assert_method(str1, res):
     try:

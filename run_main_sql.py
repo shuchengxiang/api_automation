@@ -1,4 +1,3 @@
-from common.ReadExcel import ReadExcel
 import os
 from common.RunTestCase import run_test_case
 from common.BeautifulReport.BeautifulReport import BeautifulReport
@@ -6,10 +5,12 @@ import time
 from database_data.case_model import get_all_sql_data, get_sql_data
 from app import app
 import unittest
+from common.util import get_final_case_data
 
 
 allData = get_all_sql_data()
-testData = get_sql_data([17])
+testData = get_sql_data([5])
+testData = get_final_case_data(testData, allData)
 
 if __name__ == '__main__':
     current_time = time.strftime("%Y-%m-%d-%H_%M_%S", time.localtime(time.time()))
